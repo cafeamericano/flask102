@@ -6,3 +6,7 @@ Set up a simple Flask server capable of returning HTML, JSON, HTML file, or PNG 
 - [ ] Python
 - [ ] PIP
 - [ ] Flask (`pip install flask`)
+- [ ] Heroku Postgres (`pip install psycopg2-binary`)
+
+### Future Development Notes
+- [ ] Implement PyMongo
