@@ -10,3 +10,6 @@ Set up a simple Flask server capable of returning HTML, JSON, HTML file, or PNG 
 
 ### Future Development Notes
 - [ ] Implement PyMongo
+
+### To Make a Requirements File
+- [ ] `pip freeze > requirements.txt`
