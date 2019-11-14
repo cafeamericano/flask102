@@ -1,7 +1,7 @@
 astroid==2.2.5
 Click==7.0
 colorama==0.4.1
-Django==2.2.1
+Django==2.2.4
 Flask==1.1.1
 Flask-MySQL==1.4.0
 Flask-SQLAlchemy==2.4.1
