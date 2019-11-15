@@ -12,56 +12,51 @@ myclient = pymongo.MongoClient("mongodb://localhost:27017")
 database = myclient["flask102"]
 collection = database["wines"]
 
-# Routing
+# Send the home page
 @app.route('/', methods=['GET'])
 def welcome():
     return "<h1>Hello World</h1><p>Sent to you by a server running Flask.</p>"
 
-@app.route('/params', methods=['GET'])
-def params():
-    return request.args.get('first')
-
-@app.route('/body', methods=['POST'])
-def body():
-    return jsonify(request.json)
-
-@app.route('/findmany', methods=['GET'])
+# Send all records back in an array
+@app.route('/api/all', methods=['GET'])
 def test_json2():
     data = collection.find().sort('name')
-    print(data)
     arr = []
     for item in data:
       arr.append(item)
     return json.dumps(arr, default=str)
 
-@app.route('/insert', methods=['GET'])
+# Send as url params the key and value to search for
+@app.route('/api/query', methods=['GET'])
+def test_json3():
+    x = request.args.get('key')
+    y = request.args.get('value')
+    myquery = { x: y }
+    data = collection.find(myquery)
+    arr = []
+    for item in data:
+      arr.append(item)
+    return json.dumps(arr, default=str)
+
+# Send as an object to add new
+@app.route('/api', methods=['POST'])
 def addRecord():
-    mydict = { "name": "Zinfandel", "boldness": "medium" }
-    x = collection.insert_one(mydict)
+    collection.insert_one(request.json)
     return "<p>Record added.</p>"
 
-@app.route('/delete', methods=['GET'])
-def deleteRecord():
-    myquery = { "name": "Malbec" }
-    collection.delete_one(myquery)
-    return "<p>Record deleted.</p>"
-
-@app.route('/update', methods=['GET'])
+# Send as object containing a find object and a replace object to update
+@app.route('/api', methods=['PUT'])
 def updateRecord():
-  myquery = { "name": "Cabernet Sauvignon" }
-  newvalues = { "$set": { "name": "Cabernet" } }
+  myquery = request.json['find']
+  newvalues = { "$set": request.json['replace'] }
   collection.update_one(myquery, newvalues)
   return "<p>Record updated.</p>"
 
-@app.route('/query', methods=['GET'])
-def test_json3():
-    myquery = { "boldness": "heavy" }
-    data = collection.find(myquery)
-    print(data)
-    arr = []
-    for item in data:
-      arr.append(item)
-    return json.dumps(arr, default=str)
+# Send as object the criteria to determine which record should be deleted
+@app.route('/api', methods=['DELETE'])
+def deleteRecord():
+    collection.delete_one(request.json)
+    return "<p>Record deleted.</p>"
 
 # Start server listening
 if __name__ == '__main__':
