@@ -17,6 +17,14 @@ collection = database["wines"]
 def welcome():
     return "<h1>Hello World</h1><p>Sent to you by a server running Flask.</p>"
 
+@app.route('/params', methods=['GET'])
+def params():
+    return request.args.get('first')
+
+@app.route('/body', methods=['POST'])
+def body():
+    return jsonify(request.json)
+
 @app.route('/findmany', methods=['GET'])
 def test_json2():
     data = collection.find().sort('name')
