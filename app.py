@@ -1,5 +1,5 @@
 # Imports
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app
 import pymongo
 import os
 import json
@@ -16,6 +16,10 @@ collection = database["wines"]
 @app.route('/', methods=['GET'])
 def welcome():
     return "<h1>Hello World</h1><p>Sent to you by a server running Flask.</p>"
+
+@app.route('/htmlfile', methods=['GET'])
+def sendHTMLFile():
+    return current_app.send_static_file('index.html')
 
 # Send all records back in an array
 @app.route('/api/all', methods=['GET'])
@@ -42,7 +46,10 @@ def test_json3():
 @app.route('/api', methods=['POST'])
 def addRecord():
     collection.insert_one(request.json)
-    return "<p>Record added.</p>"
+    return jsonify(
+      code=0,
+      msg="Success"
+    )
 
 # Send as object containing a find object and a replace object to update
 @app.route('/api', methods=['PUT'])

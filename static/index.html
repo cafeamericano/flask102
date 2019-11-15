@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>All Wines</h1>
+    <div id='allWines'></div>
+    <h1>Add a Wine</h1>
+    <div id='addNewWine'>
+        <form id='addNewWineForm'>
+            <label>Name</label>
+            <input id='newWineName'></input>
+            <label>Boldness</label>
+            <input id='newWineBoldness'></input>
+            <button type='submit'>Submit</button>
+        </form>
+    </div>
+
+    <script>
+
+        //On start
+        getAllWines();
+
+        //Event listeners
+        $(document).on('submit', '#addNewWineForm', function(event){
+            event.preventDefault();
+            data = {
+                name: $('#newWineName').val(),
+                boldness: $('#newWineBoldness').val(),
+            }
+            $.ajax({
+                url: '/api',
+                method: 'POST',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: 'application/json'
+            }).then(function(response){
+                console.log(response)
+                getAllWines();
+                $('#newWineName').empty()
+                $('#newWineBoldness').empty()
+            })
+        })
+
+        //Functions
+        function getAllWines() {
+            $.ajax({
+                url: '/api/all',
+                method: 'GET'
+            }).then(function(response){
+                response = JSON.parse(response)
+                console.log(response)
+                $('#allWines').empty();
+                for (var i = 0; i < response.length; i++) {
+                    $('#allWines').append(`<div>${response[i].name} is a ${response[i].boldness} bodied wine.</div>`)
+                }
+            })
+        }
+
+    </script>
+</body>
+
+</html>
