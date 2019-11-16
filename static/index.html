@@ -10,46 +10,108 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <style>
-        header {
-            background-image: url('https://images.unsplash.com/photo-1416432969026-7e41a751ee1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1490&q=80');
+        body {
+            background-image: url('https://images.unsplash.com/photo-1456295198429-05d2315cfebb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1352&q=80');
             background-size: cover;
             background-repeat: repeat;
             background-attachment: fixed;
+        }
+        header {
             height: 20em;
+        }
+        footer {
+            height: 5em;
+        }
+        main {
+            background: white;
+        }
+        .card-title {
+            background: rgba(0,0,0,0.5);
         }
         .card-image {
             height: 15em;
             overflow: hidden;
         }
+        .card-image-photo {
+            height: '100%'
+        }
+        .card-content {
+            height: 10em;
+            overflow: scroll;
+        }
+        .toggle-favorite-button {
+            color: red;
+        }
     </style>
 </head>
+
 <body>
+
+    <!-- Header -->
     <header></header>
-    <main class='container pt-5'>
-        <h1>All Wines</h1>
-        <div id='allWines' class='row'></div>
-        <h1>Add a Wine</h1>
-        <div id='addNewWine'>
+
+    <main>
+
+        <!-- All Wines -->
+        <section class='container' style="padding-top: 2em">
+            <h1>Wine Library</h1>
+            <div style='text-align: right;'>
+                <!-- Modal Trigger -->
+                <a class="modal-trigger" href="#modal1">Add a New Wine</a>
+            </div>
+            <hr/>
+            <br/>
+            <div id='allWines' class='row'></div>
+        </section>
+
+
+
+        <!-- Modal Structure -->
+        <div id="modal1" class="modal">
             <form id='addNewWineForm'>
-                <label>Name</label>
-                <input id='newWineName'></input>
-                <label>Boldness</label>
-                <input id='newWineBoldness'></input>
-                <button type='submit'>Submit</button>
+                <div class="modal-content">
+                    <h4>Add a Wine</h4>
+                    <div id='addNewWine'>
+                            <label>Name</label>
+                            <input id='newName'></input>
+                            <label>Description</label>
+                            <input id='newDescription'></input>
+                            <label>Image URL</label>
+                            <input id='newImageUrl'></input>
+                            <label>Information URL</label>
+                            <input id='newInfoUrl'></input>
+                    </div>            
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat" id='submitNewWine'>Create</a>
+                </div>
             </form>
         </div>
+
     </main>
+
+    <!-- Footer -->
+    <footer></footer>
+
     <script>
 
         //On start
         getAllWines();
 
         //Event listeners
-        $(document).on('submit', '#addNewWineForm', function(event){
+
+        $(document).ready(function(){
+            $('.modal').modal();
+        });
+
+        $(document).on('click', '#submitNewWine', function(event){
             event.preventDefault();
             data = {
-                name: $('#newWineName').val(),
-                boldness: $('#newWineBoldness').val(),
+                name: $('#newName').val(),
+                description: $('#newDescription').val(),
+                imgSource: $('#newImageUrl').val(),
+                infoSource: $('#newInfoUrl').val(),
             }
             $.ajax({
                 url: '/api',
@@ -60,8 +122,7 @@
             }).then(function(response){
                 console.log(response)
                 getAllWines();
-                $('#newWineName').empty()
-                $('#newWineBoldness').empty()
+                $("#addNewWineForm").trigger('reset');
             })
         })
 
@@ -121,17 +182,16 @@
                     let favoriteButtonText = response[i].isFavorite ? '<i class="fas fa-heart"></i>': '<i class="far fa-heart"></i>'
                     let favoriteButtonAppearance = response[i].isFavorite ? 'btn-success': "btn-secondary"
                     $('#allWines').append(`
-                        <div class="col s12 m6 l4">
+                        <div class="col s12 m6 xl4">
                             <div class="card">
                                 <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1547595628-c61a29f496f0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80">
+                                    <img src="${response[i].imgSource}">
                                     <span class="card-title">${response[i].name}</span>
                                 </div>
                                 <div class="card-content">
-                                    <p>I am a very simple card. I am good at containing small bits of information.
-                                    I am convenient because I require little markup to use effectively.</p>
+                                    <p>${response[i].description} <a href='${response[i].infoSource}'>Read more.</a></p>
                                 </div>
-                                <div class="card-action">
+                                <div class="card-action" style='text-align: right'>
                                     <td><button data-id='${response[i]._id}' data-is-favorite='${dataIsFavorite}' class='toggle-favorite-button btn ${favoriteButtonAppearance}'>${favoriteButtonText}</button></td>
                                     <td><button data-id='${response[i]._id}' class='delete-record-button btn btn-danger'><i class="fas fa-eraser"></i></button></td>
                                 </div>
@@ -143,9 +203,9 @@
         }
 
     </script>
+    <script>
+        M.AutoInit();
+    </script>
 </body>
 
-</html>
-
-<td>${response[i].name} is a ${response[i].boldness} bodied wine.</td>
-                            
+</html>                            
