@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Define database
 myclient = pymongo.MongoClient(os.getenv('MONGODB_URI', "mongodb://localhost:27017"))
-database = myclient["flask102"]
+database = myclient[(os.getenv('MONGODB_NAME', "flask102"))]
 collection = database["wines"]
 
 # Send the home page
