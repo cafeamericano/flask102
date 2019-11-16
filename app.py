@@ -1,6 +1,7 @@
 # Imports
 from flask import Flask, request, jsonify, current_app
 import pymongo
+from bson.objectid import ObjectId
 import os
 import json
 
@@ -14,10 +15,6 @@ collection = database["wines"]
 
 # Send the home page
 @app.route('/', methods=['GET'])
-def welcome():
-    return "<h1>Hello World</h1><p>Sent to you by a server running Flask.</p>"
-
-@app.route('/htmlfile', methods=['GET'])
 def sendHTMLFile():
     return current_app.send_static_file('index.html')
 
@@ -45,6 +42,7 @@ def test_json3():
 # Send as an object to add new
 @app.route('/api', methods=['POST'])
 def addRecord():
+    request.json['isFavorite'] = False
     collection.insert_one(request.json)
     return jsonify(
       code=0,
@@ -54,16 +52,23 @@ def addRecord():
 # Send as object containing a find object and a replace object to update
 @app.route('/api', methods=['PUT'])
 def updateRecord():
-  myquery = request.json['find']
-  newvalues = { "$set": request.json['replace'] }
-  collection.update_one(myquery, newvalues)
-  return "<p>Record updated.</p>"
+    myquery = {'_id': ObjectId(request.json['_id'])}
+    newvalues = { "$set": {'isFavorite': request.json['isFavorite'] } }
+    collection.update_one(myquery, newvalues)
+    return jsonify(
+      code=0,
+      msg="Success"
+    )
 
 # Send as object the criteria to determine which record should be deleted
 @app.route('/api', methods=['DELETE'])
 def deleteRecord():
-    collection.delete_one(request.json)
-    return "<p>Record deleted.</p>"
+    print({'_id': request.json['_id']})
+    collection.delete_one({'_id': ObjectId(request.json['_id'])})
+    return jsonify(
+      code=0,
+      msg="Success"
+    )
 
 # Start server listening
 if __name__ == '__main__':

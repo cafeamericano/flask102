@@ -5,22 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <style>
+        header {
+            background-image: url('https://images.unsplash.com/photo-1416432969026-7e41a751ee1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1490&q=80');
+            background-size: cover;
+            background-repeat: repeat;
+            background-attachment: fixed;
+            height: 20em;
+        }
+        .card-image {
+            height: 15em;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
-    <h1>All Wines</h1>
-    <div id='allWines'></div>
-    <h1>Add a Wine</h1>
-    <div id='addNewWine'>
-        <form id='addNewWineForm'>
-            <label>Name</label>
-            <input id='newWineName'></input>
-            <label>Boldness</label>
-            <input id='newWineBoldness'></input>
-            <button type='submit'>Submit</button>
-        </form>
-    </div>
-
+    <header></header>
+    <main class='container pt-5'>
+        <h1>All Wines</h1>
+        <div id='allWines' class='row'></div>
+        <h1>Add a Wine</h1>
+        <div id='addNewWine'>
+            <form id='addNewWineForm'>
+                <label>Name</label>
+                <input id='newWineName'></input>
+                <label>Boldness</label>
+                <input id='newWineBoldness'></input>
+                <button type='submit'>Submit</button>
+            </form>
+        </div>
+    </main>
     <script>
 
         //On start
@@ -47,6 +65,48 @@
             })
         })
 
+        $(document).on('click', '.delete-record-button', function(event){
+            event.preventDefault();
+            data = {
+                _id: $(this).attr('data-id')
+            }
+            $.ajax({
+                url: '/api',
+                method: 'DELETE',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: 'application/json'
+            }).then(function(response){
+                console.log(response)
+                getAllWines();
+            })
+        })
+
+        $(document).on('click', '.toggle-favorite-button', function(event){
+            event.preventDefault();
+            let favoriteToggledValue;
+            if ($(this).attr('data-is-favorite') == "true") {
+                favoriteToggledValue = false;
+            } else {
+                favoriteToggledValue = true;
+            }
+            data = {
+                _id: $(this).attr('data-id'),
+                isFavorite: favoriteToggledValue
+            }
+            console.log(data)
+            $.ajax({
+                url: '/api',
+                method: 'PUT',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: 'application/json'
+            }).then(function(response){
+                console.log(response)
+                getAllWines();
+            })
+        })
+
         //Functions
         function getAllWines() {
             $.ajax({
@@ -57,7 +117,27 @@
                 console.log(response)
                 $('#allWines').empty();
                 for (var i = 0; i < response.length; i++) {
-                    $('#allWines').append(`<div>${response[i].name} is a ${response[i].boldness} bodied wine.</div>`)
+                    let dataIsFavorite = response[i].isFavorite ? 'true': 'false'
+                    let favoriteButtonText = response[i].isFavorite ? '<i class="fas fa-heart"></i>': '<i class="far fa-heart"></i>'
+                    let favoriteButtonAppearance = response[i].isFavorite ? 'btn-success': "btn-secondary"
+                    $('#allWines').append(`
+                        <div class="col s12 m6 l4">
+                            <div class="card">
+                                <div class="card-image">
+                                    <img src="https://images.unsplash.com/photo-1547595628-c61a29f496f0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80">
+                                    <span class="card-title">${response[i].name}</span>
+                                </div>
+                                <div class="card-content">
+                                    <p>I am a very simple card. I am good at containing small bits of information.
+                                    I am convenient because I require little markup to use effectively.</p>
+                                </div>
+                                <div class="card-action">
+                                    <td><button data-id='${response[i]._id}' data-is-favorite='${dataIsFavorite}' class='toggle-favorite-button btn ${favoriteButtonAppearance}'>${favoriteButtonText}</button></td>
+                                    <td><button data-id='${response[i]._id}' class='delete-record-button btn btn-danger'><i class="fas fa-eraser"></i></button></td>
+                                </div>
+                            </div>
+                        </div>
+                    `)
                 }
             })
         }
@@ -66,3 +146,6 @@
 </body>
 
 </html>
+
+<td>${response[i].name} is a ${response[i].boldness} bodied wine.</td>
+                            
