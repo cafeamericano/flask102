@@ -9,7 +9,7 @@ import json
 app = Flask(__name__)
 
 # Define database
-myclient = pymongo.MongoClient("mongodb://localhost:27017")
+myclient = pymongo.MongoClient(os.getenv('MONGODB_URI', "mongodb://localhost:27017"))
 database = myclient["flask102"]
 collection = database["wines"]
 
